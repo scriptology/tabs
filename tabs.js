@@ -9,7 +9,7 @@
            template:
                '<ul class="nav nav-tabs">' +
                    '<li ng-repeat="pane in panes" ng-class="{active: pane.selected}" class="{{ pane.tabClass }}" ng-hide="pane.hidden">' +
-                       '<a href="" ng-click="selectTab(pane)" title="{{ pane.title | striptags }}" alias="{{ pane.alias | striptags }}" ng-bind-html="pane.title"></a>' +
+                       '<a href="" ng-click="selectTab(pane)" title="{{ pane.title | striptags }}" alias="{{ pane.alias }}" ng-bind-html="pane.title"></a>' +
                    '</li>' +
                '</ul>' +
                '<div class="tab-content" ng-transclude></div>',
@@ -24,7 +24,8 @@
                        });
                        pane.selected = true;
                        //$location.hash(String(pane.title).replace(/<.*>/g, '').trim());
-                       $location.hash(String(pane.alias).replace(/<.*>/g, '').trim());
+                        // TODO: off location
+                       //$location.hash(String(pane.alias).replace(/<.*>/g, '').trim());
                    }
                };
 
@@ -51,13 +52,14 @@
             link: function(scope, element, attrs, tabsCtrl){
                 scope.struct = {
                     title: $sce.trustAsHtml(attrs.title),
-                    alias: $sce.trustAsHtml(attrs.alias) || false,
+                    alias: $sce.trustAsHtml(attrs.alias),
                     hidden: ('ngShow' in attrs && !scope.$eval(attrs.ngShow)) || ('ngHide' in attrs && scope.$eval(attrs.ngHide)),
                     tabClass: attrs.class,
                 };
                 // cleaning pane element after first rendering
                 setTimeout(function(){
                     element.removeAttr('title');
+                    element.removeAttr('alias');
                     element.removeAttr('class');
                 }, 0);
 
