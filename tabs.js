@@ -9,7 +9,7 @@
            template:
                '<ul class="nav nav-tabs">' +
                    '<li ng-repeat="pane in panes" ng-class="{active: pane.selected}" class="{{ pane.tabClass }}" ng-hide="pane.hidden">' +
-                       '<a href="" ng-click="selectTab(pane)" title="{{ pane.title | striptags }}" ng-bind-html="pane.title"></a>' +
+                       '<a href="" ng-click="selectTab(pane)" title="{{ pane.title | striptags }}" alias="{{ pane.alias | striptags }}" ng-bind-html="pane.title"></a>' +
                    '</li>' +
                '</ul>' +
                '<div class="tab-content" ng-transclude></div>',
@@ -23,13 +23,14 @@
                            p.selected = false;
                        });
                        pane.selected = true;
-                       $location.hash(String(pane.title).replace(/<.*>/g, '').trim());
+                       //$location.hash(String(pane.title).replace(/<.*>/g, '').trim());
+                       $location.hash(String(pane.alias).replace(/<.*>/g, '').trim());
                    }
                };
 
                this.addPane = function(pane) {
                    $scope.panes.push(pane);
-                   if ($scope.panes.length == 1 || $location.hash() == String(pane.title).replace(/<.*>/g, '').trim()) {
+                   if ($scope.panes.length == 1 || $location.hash() == String(pane.alias).replace(/<.*>/g, '').trim()) {
                        angular.forEach($scope.panes, function(p) {
                            p.selected = false;
                        });
@@ -39,7 +40,7 @@
            }
        };
     });
-   
+
     app.directive('pane', function($sce) {
         return {
             require: '^tabs',
@@ -50,6 +51,7 @@
             link: function(scope, element, attrs, tabsCtrl){
                 scope.struct = {
                     title: $sce.trustAsHtml(attrs.title),
+                    alias: $sce.trustAsHtml(attrs.alias) || false,
                     hidden: ('ngShow' in attrs && !scope.$eval(attrs.ngShow)) || ('ngHide' in attrs && scope.$eval(attrs.ngHide)),
                     tabClass: attrs.class,
                 };
@@ -58,13 +60,13 @@
                     element.removeAttr('title');
                     element.removeAttr('class');
                 }, 0);
-                
+
                 // register itself
                 tabsCtrl.addPane(scope.struct);
-                
+
                 // keeps title in sync
-                attrs.$observe('title', function(nv){
-                    scope.struct.title = $sce.trustAsHtml(attrs.title);
+                attrs.$observe('alias', function(nv){
+                    scope.struct.alias = $sce.trustAsHtml(attrs.alias);
                 });
             }
         };
